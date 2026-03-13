@@ -62,6 +62,30 @@ A Telegram bot that gives you Claude Code CLI access from your phone. Send a mes
    python run.py
    ```
 
+### Auto-start on login (macOS)
+
+To have the bot start automatically when you log in and restart if it crashes:
+
+```bash
+cp com.thekhozachain.telegramclaude.plist ~/Library/LaunchAgents/
+launchctl load ~/Library/LaunchAgents/com.thekhozachain.telegramclaude.plist
+```
+
+**Note:** Edit the plist file first to update paths if your username or install directory differs.
+
+Manage the service:
+
+```bash
+# Stop the bot
+launchctl unload ~/Library/LaunchAgents/com.thekhozachain.telegramclaude.plist
+
+# Start the bot
+launchctl load ~/Library/LaunchAgents/com.thekhozachain.telegramclaude.plist
+
+# Check logs
+tail -f ~/telegram_claude/bot.log
+```
+
 ## Usage
 
 Open your bot in Telegram and send any message. Claude Code handles it.
