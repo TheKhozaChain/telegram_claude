@@ -1,9 +1,57 @@
 import os
 import asyncio
+import subprocess
 from bot import config
+
+
+def _snapshot_git_repos(working_dir: str) -> list[str]:
+    """Auto-commit uncommitted changes in git repos under working_dir as a safety snapshot.
+
+    Returns list of directories where snapshots were created.
+    """
+    snapped = []
+    dirs_to_check = [working_dir]
+
+    # Also check immediate subdirectories (for when WORKING_DIR is ~)
+    try:
+        for entry in os.scandir(working_dir):
+            if entry.is_dir() and not entry.name.startswith('.'):
+                if os.path.isdir(os.path.join(entry.path, '.git')):
+                    dirs_to_check.append(entry.path)
+    except OSError:
+        pass
+
+    for d in dirs_to_check:
+        if not os.path.isdir(os.path.join(d, '.git')):
+            continue
+        try:
+            # Check if there are any uncommitted changes
+            result = subprocess.run(
+                ['git', 'status', '--porcelain'],
+                cwd=d, capture_output=True, text=True, timeout=10,
+            )
+            if result.returncode == 0 and result.stdout.strip():
+                subprocess.run(
+                    ['git', 'add', '-A'],
+                    cwd=d, capture_output=True, timeout=10,
+                )
+                subprocess.run(
+                    ['git', 'commit', '-m', '[teleclaude] auto-snapshot before new task'],
+                    cwd=d, capture_output=True, timeout=10,
+                )
+                snapped.append(d)
+        except Exception:
+            pass
+
+    return snapped
+
 
 async def send(user_id: int, message_text: str, is_continuation: bool = False) -> str:
     """Send a prompt to Claude Code CLI and return the response."""
+    # Snapshot git repos before making changes
+    if not is_continuation:
+        await asyncio.to_thread(_snapshot_git_repos, config.WORKING_DIR)
+
     env = {k: v for k, v in os.environ.items() if k != "CLAUDECODE"}
 
     # Use API key if configured, otherwise fall back to CLI's own auth (subscription)
