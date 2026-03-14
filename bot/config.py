@@ -1,5 +1,6 @@
 import os
 import sys
+from pathlib import Path
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -14,7 +15,7 @@ def _require(name: str) -> str:
 
 
 TELEGRAM_BOT_TOKEN = _require("TELEGRAM_BOT_TOKEN")
-ANTHROPIC_API_KEY = _require("ANTHROPIC_API_KEY")
+ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
 
 ALLOWED_USER_IDS: set[int] = set()
 raw_ids = os.getenv("ALLOWED_USER_IDS", "")
@@ -28,4 +29,5 @@ if not ALLOWED_USER_IDS:
     sys.exit(1)
 
 CLAUDE_CLI_PATH = os.getenv("CLAUDE_CLI_PATH", "claude")
+WORKING_DIR = os.getenv("WORKING_DIR", str(Path.home()))
 RATE_LIMIT_CODE = int(os.getenv("RATE_LIMIT_CODE", "10"))

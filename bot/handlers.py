@@ -1,7 +1,7 @@
 from telegram import Update
 from telegram.ext import ContextTypes
 from bot.security import authorized, rate_limiter
-from bot import code_backend
+from bot import config, code_backend
 from bot.utils import send_response
 
 
@@ -11,7 +11,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         "Claude Code on Telegram.\n\n"
         "Send any message and I'll handle it via Claude Code CLI.\n"
-        "I have access to everything under /Users/siphokhoza.\n"
+        f"Working directory: {config.WORKING_DIR}\n"
         "Follow-up messages continue the same conversation.\n\n"
         "/new — Start a fresh conversation\n"
     )

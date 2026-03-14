@@ -3,12 +3,17 @@ import asyncio
 from bot import config
 
 TIMEOUT_SECONDS = 300
-WORKING_DIR = "/Users/siphokhoza"
 
 
 async def send(user_id: int, message_text: str, is_continuation: bool = False) -> str:
     """Send a prompt to Claude Code CLI and return the response."""
-    env = {k: v for k, v in os.environ.items() if k not in ("CLAUDECODE", "ANTHROPIC_API_KEY")}
+    env = {k: v for k, v in os.environ.items() if k != "CLAUDECODE"}
+
+    # Use API key if configured, otherwise fall back to CLI's own auth (subscription)
+    if config.ANTHROPIC_API_KEY:
+        env["ANTHROPIC_API_KEY"] = config.ANTHROPIC_API_KEY
+    else:
+        env.pop("ANTHROPIC_API_KEY", None)
 
     cmd = [
         config.CLAUDE_CLI_PATH,
@@ -24,7 +29,7 @@ async def send(user_id: int, message_text: str, is_continuation: bool = False) -
     try:
         proc = await asyncio.create_subprocess_exec(
             *cmd,
-            cwd=WORKING_DIR,
+            cwd=config.WORKING_DIR,
             env=env,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
