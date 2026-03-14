@@ -40,10 +40,15 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     context.user_data["processing"] = True
-    await update.message.chat.send_action("typing")
 
     msg_count = context.user_data.get("msg_count", 0)
     is_continuation = msg_count > 0
+
+    # Confirm we're working on it with a brief summary
+    preview = text if len(text) <= 100 else text[:100] + "…"
+    status = "Continuing" if is_continuation else "Working on"
+    await update.message.reply_text(f"⏳ {status}: {preview}")
+    await update.message.chat.send_action("typing")
 
     try:
         reply = await code_backend.send(user_id, text, is_continuation=is_continuation)
