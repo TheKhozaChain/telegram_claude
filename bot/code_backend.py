@@ -2,7 +2,7 @@ import os
 import asyncio
 from bot import config
 
-TIMEOUT_SECONDS = 300
+TIMEOUT_SECONDS = 600
 
 
 async def send(user_id: int, message_text: str, is_continuation: bool = False) -> str:
@@ -19,7 +19,7 @@ async def send(user_id: int, message_text: str, is_continuation: bool = False) -
         config.CLAUDE_CLI_PATH,
         "-p", message_text,
         "--output-format", "text",
-        "--max-turns", "10",
+        "--max-turns", "50",
         "--dangerously-skip-permissions",
     ]
 
