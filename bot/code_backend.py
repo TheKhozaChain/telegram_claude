@@ -2,9 +2,6 @@ import os
 import asyncio
 from bot import config
 
-TIMEOUT_SECONDS = 600
-
-
 async def send(user_id: int, message_text: str, is_continuation: bool = False) -> str:
     """Send a prompt to Claude Code CLI and return the response."""
     env = {k: v for k, v in os.environ.items() if k != "CLAUDECODE"}
@@ -35,10 +32,7 @@ async def send(user_id: int, message_text: str, is_continuation: bool = False) -
             stderr=asyncio.subprocess.PIPE,
         )
 
-        stdout, stderr = await asyncio.wait_for(
-            proc.communicate(),
-            timeout=TIMEOUT_SECONDS,
-        )
+        stdout, stderr = await proc.communicate()
 
         if proc.returncode != 0:
             error_msg = stderr.decode("utf-8", errors="replace").strip()
@@ -50,10 +44,6 @@ async def send(user_id: int, message_text: str, is_continuation: bool = False) -
         result = stdout.decode("utf-8", errors="replace").strip()
         return result or "(empty response)"
 
-    except asyncio.TimeoutError:
-        proc.kill()
-        await proc.wait()
-        return f"Timed out after {TIMEOUT_SECONDS}s. Try a simpler request."
     except FileNotFoundError as e:
         if not os.path.isdir(config.WORKING_DIR):
             return f"Working directory not found: {config.WORKING_DIR}"
