@@ -29,5 +29,5 @@ if not ALLOWED_USER_IDS:
     sys.exit(1)
 
 CLAUDE_CLI_PATH = os.getenv("CLAUDE_CLI_PATH", "claude")
-WORKING_DIR = os.getenv("WORKING_DIR", str(Path.home()))
+WORKING_DIR = os.getenv("WORKING_DIR", "") or str(Path.home())
 RATE_LIMIT_CODE = int(os.getenv("RATE_LIMIT_CODE", "10"))

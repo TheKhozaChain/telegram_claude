@@ -54,7 +54,9 @@ async def send(user_id: int, message_text: str, is_continuation: bool = False) -
         proc.kill()
         await proc.wait()
         return f"Timed out after {TIMEOUT_SECONDS}s. Try a simpler request."
-    except FileNotFoundError:
+    except FileNotFoundError as e:
+        if not os.path.isdir(config.WORKING_DIR):
+            return f"Working directory not found: {config.WORKING_DIR}"
         return f"Claude CLI not found at: {config.CLAUDE_CLI_PATH}"
     except Exception as e:
         return f"Error: {e}"
